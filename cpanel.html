@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPanel - Edit Website Kelas 8.11</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .login-container { max-width: 400px; margin: 100px auto; padding: 20px; background: #f9f9f9; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .login-container h2 { text-align: center; color: #667eea; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .login-btn { background: #667eea; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
+        .login-btn:hover { background: #5a67d8; }
+        .error { color: red; text-align: center; margin-top: 10px; }
+
+        .cpanel-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .section-form { background: #f9f9f9; padding: 20px; margin-bottom: 20px; border-radius: 10px; }
+        .section-form h3 { color: #667eea; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+        .student-item { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .student-item input { margin-bottom: 5px; }
+        .add-student { background: #667eea; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        .save-btn { background: #ff6b6b; color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .save-btn:hover { background: #ff5252; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; position: fixed; top: 20px; right: 20px; }
+
+        .admin-profile { position: fixed; top: 20px; left: 20px; display: flex; align-items: center; background: rgba(255, 255, 255, 0.9); padding: 10px 15px; border-radius: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); backdrop-filter: blur(10px); transition: all 0.3s ease; }
+        .admin-profile img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; border: 2px solid #667eea; }
+        .admin-profile .admin-info { color: #333; }
+        .admin-profile .admin-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+        .admin-profile .admin-role { font-size: 12px; color: #667eea; opacity: 0.8; }
+
+        /* Dark mode styles */
+        body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
+        body.dark-mode .login-container { background: #2d2d2d; color: #e0e0e0; }
+        body.dark-mode .cpanel-container .section-form { background: #2d2d2d; color: #e0e0e0; }
+        body.dark-mode .student-item { background: #3d3d3d; border-color: #555; }
+        body.dark-mode .form-group input, body.dark-mode .form-group textarea { background: #3d3d3d; border-color: #555; color: #e0e0e0; }
+        body.dark-mode .admin-profile { background: rgba(45, 45, 45, 0.9); }
+        body.dark-mode .admin-profile .admin-info { color: #e0e0e0; }
+        body.dark-mode header { background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%); }
+
+        .dark-mode-toggle { position: fixed; top: 20px; right: 120px; background: #667eea; color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
+        .dark-mode-toggle:hover { background: #5a67d8; }
+        body.dark-mode .dark-mode-toggle { background: #444; }
+        body.dark-mode .dark-mode-toggle:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div id="login-form" class="login-container">
+        <h2>Login ke CPanel</h2>
+        <div class="form-group">
+            <label for="user-type">Pilih Tipe User</label>
+            <select id="user-type" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <option value="">-- Pilih Tipe User --</option>
+                <option value="kelas8.11.id@gmail.com">kelas8.11.id@gmail.com (khusus owner)</option>
+                <option value="akses cpanel by admin">akses cpanel by admin (admin)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Masukkan password">
+        </div>
+        <button type="button" class="login-btn" onclick="login()">Login</button>
+        <div id="error-message" class="error"></div>
+    </div>
+
+    <!-- CPanel Content (hidden initially) -->
+    <div id="cpanel-content" style="display: none;">
+        <!-- Admin Profile -->
+        <div class="admin-profile">
+            <img id="admin-photo" src="" alt="Admin Photo">
+            <div class="admin-info">
+                <div id="admin-name" class="admin-name">Admin</div>
+                <div class="admin-role">Administrator</div>
+            </div>
+        </div>
+
+        <header style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem 0; text-align: center;">
+            <div class="container">
+                <h1>CPanel - Edit Website Kelas 8.11</h1>
+                <p>Edit konten website dengan mudah</p>
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="cpanel-container">
+            <!-- Header -->
+            <div class="section-form">
+                <h3>Header</h3>
+                <div class="form-group">
+                    <label for="header-title">Judul</label>
+                    <input type="text" id="header-title" value="Kelas 8.11/delabels">
+                </div>
+                <div class="form-group">
+                    <label for="header-subtitle">Subjudul</label>
+                    <input type="text" id="header-subtitle" value="MTSN 1 KOTA BEKASI - Website Resmi Kelas Kami">
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="section-form">
+                <h3>Hero Section</h3>
+                <div class="form-group">
+                    <label for="hero-title">Judul</label>
+                    <input type="text" id="hero-title" value="Selamat Datang di Website Kelas Kami!">
+                </div>
+                <div class="form-group">
+                    <label for="hero-text">Teks</label>
+                    <textarea id="hero-text">Kami adalah kelas yang solid, kreatif, dan penuh semangat. Mari bersama-sama mencapai impian!</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="hero-bg">Background Image URL</label>
+                    <input type="url" id="hero-bg" value="https://files.catbox.moe/q17s9n.jpg">
+                </div>
+            </div>
+
+            <!-- About -->
+            <div class="section-form">
+                <h3>Tentang Kami</h3>
+                <div class="form-group">
+                    <label for="about-text">Teks</label>
+                    <textarea id="about-text">Kelas delabels adalah komunitas siswa yang aktif, inovatif, dan selalu siap menghadapi tantangan. Kami percaya bahwa pendidikan bukan hanya tentang belajar di kelas, tapi juga tentang membangun karakter dan persahabatan yang kuat.</textarea>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="section-form">
+                <h3>Informasi Kelas</h3>
+                <div class="form-group">
+                    <label for="info-curriculum">Kurikulum</label>
+                    <textarea id="info-curriculum">Kurikulum Merdeka adalah kurikulum terbaru di Indonesia yang lebih fleksibel, berpusat pada siswa, dan fokus pada pengembangan kompetensi esensial serta karakter melalui Projek Penguatan Profil Pelajar Pancasila...</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="info-teacher">Guru BK</label>
+                    <input type="text" id="info-teacher" value="Bu Novia Nur Fadhila. - bimbingan konseling">
+                </div>
+                <div class="form-group">
+                    <label for="info-homeroom">Wali Kelas</label>
+                    <input type="text" id="info-homeroom" value="Bu HJ Roziqoh,S,Pd,M,Si - ipa(walas )">
+                </div>
+                <div class="form-group">
+                    <label for="info-achievement">Prestasi</label>
+                    <textarea id="info-achievement">HASNA MEMENANGKAN LOMBA POSTER DIGITAL PADA ACARA CLASS MEET YG DI SELENGGARAKAN PADA TANGGAL 11/12/2025 TIDAK ADA TIDAK ADA</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="info-routine">Kegiatan Rutin</label>
+                    <textarea id="info-routine">Upacara Bendera setiap Senin Ekstrakurikuler sesuai harinya setiap jumat pagi ke masjid membaca surah yasin,Al waqiah,ar rahman,al mulk</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="info-books">Buku Wajib</label>
+                    <input type="text" id="info-books" value="sesuai hari di jadwal pelajaran">
+                </div>
+                <div class="form-group">
+                    <label for="info-vision">Visi & Misi</label>
+                    <textarea id="info-vision">Visi: Menjadi kelas unggul dalam akademik dan karakter Misi: Mendorong siswa untuk belajar dengan semangat dan integritas</textarea>
+                </div>
+            </div>
+
+            <!-- Students -->
+            <div class="section-form">
+                <h3>Daftar Siswa</h3>
+                <div id="students-list">
+                    <!-- Students will be loaded here -->
+                </div>
+                <button type="button" class="add-student" onclick="addStudent()">Tambah Siswa</button>
+            </div>
+
+            <!-- Structure -->
+            <div class="section-form">
+                <h3>Struktur Organisasi</h3>
+                <h4>Wali Kelas</h4>
+                <div id="wali-list">
+                    <!-- Wali Kelas will be loaded here -->
+                </div>
+                <button type="button" class="add-student" onclick="addWali()">Tambah Wali Kelas</button>
+                <h4>Ketua Murid</h4>
+                <div id="ketua-list">
+                    <!-- Ketua Murid will be loaded here -->
+                </div>
+                <button type="button" class="add-student" onclick="addKetua()">Tambah Ketua Murid</button>
+                <h4>Wakil Ketua Murid</h4>
+                <div id="wakil-list">
+                    <!-- Wakil Ketua Murid will be loaded here -->
+                </div>
+                <button type="button" class="add-student" onclick="addWakil()">Tambah Wakil Ketua Murid</button>
+                <h4>Departemen</h4>
+                <div id="departments-list">
+                    <!-- Departments will be loaded here -->
+                </div>
+                <button type="button" class="add-student" onclick="addDepartment()">Tambah Departemen</button>
+            </div>
+
+            <!-- Schedule -->
+            <div class="section-form">
+                <h3>Jadwal Pelajaran</h3>
+                <div class="form-group">
+                    <label for="schedule-senin">Senin</label>
+                    <input type="text" id="schedule-senin" value="AKIDAH AHLAK - SKI - TAHFIDZ - BK - IPA">
+                </div>
+                <div class="form-group">
+                    <label for="schedule-selasa">Selasa</label>
+                    <input type="text" id="schedule-selasa" value="IPS - BAHASA ARAB - BAHASA INGGRIS - BAHASA INDONESIA - #N/A - IPA">
+                </div>
+                <div class="form-group">
+                    <label for="schedule-rabu">Rabu</label>
+                    <input type="text" id="schedule-rabu" value="IPA - SENI BUDAYA - IPA - AL QURAN HADITS - MATEMATIKA - BAHASA INDONESIA">
+                </div>
+                <div class="form-group">
+                    <label for="schedule-kamis">Kamis</label>
+                    <input type="text" id="schedule-kamis" value="BAHASA INDONESIA - MATEMATIKA - BAHASA ARAB - PPKN - #N/A - IPS">
+                </div>
+                <div class="form-group">
+                    <label for="schedule-jumat">Jumat</label>
+                    <input type="text" id="schedule-jumat" value="PENJASKES - FIKIH - INFORMATIKA - BAHASA INGGRIS">
+                </div>
+            </div>
+
+            <!-- Gallery -->
+            <div class="section-form">
+                <h3>Foto Kegiatan</h3>
+                <div id="gallery-list">
+                    <!-- Gallery images will be loaded here -->
+                </div>
+                <button type="button" class="add-student" onclick="addGalleryImage()">Tambah Foto</button>
+            </div>
+
+            <!-- Contact -->
+            <div class="section-form">
+                <h3>Kontak</h3>
+                <div class="form-group">
+                    <label for="contact-text">Teks</label>
+                    <textarea id="contact-text">Jika Anda ingin menghubungi kami, silakan kirim email atau pesan melalui media sosial,Jika ada masukan untuk website ini harap hubungi. terimakasih WEBSITE PRIVATE DELABELS</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="contact-email">Email</label>
+                    <input type="email" id="contact-email" value="Kelas8.11.id@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label for="contact-ig">Instagram</label>
+                    <input type="text" id="contact-ig" value="@delabels">
+                </div>
+                <div class="form-group">
+                    <label for="contact-wa">WhatsApp</label>
+                    <input type="text" id="contact-wa" value="+62 857-7322-9186">
+                </div>
+            </div>
+
+            <!-- Custom Nav Links -->
+            <div class="section-form">
+                <h3>Custom Nav Links</h3>
+                <div id="nav-links-list">
+                    <!-- Nav links will be loaded here -->
+                </div>
+                <div class="form-group">
+                    <label for="nav-link-text">Link Text</label>
+                    <input type="text" id="nav-link-text" placeholder="e.g., CPANEL">
+                </div>
+                <div class="form-group">
+                    <label for="nav-link-url">Link URL</label>
+                    <input type="url" id="nav-link-url" placeholder="e.g., cpanel.html">
+                </div>
+                <button type="button" class="add-student" onclick="addNavLink()">Tambah Nav Link</button>
+            </div>
+
+            <!-- Custom Sections -->
+            <div class="section-form">
+                <h3>Custom Sections</h3>
+                <div id="custom-sections-list">
+                    <!-- Custom sections will be loaded here -->
+                </div>
+                <div class="form-group">
+                    <label for="custom-section-title">Section Title</label>
+                    <input type="text" id="custom-section-title" placeholder="e.g., Produk">
+                </div>
+                <div class="form-group">
+                    <label for="custom-section-content">Section Content (HTML)</label>
+                    <textarea id="custom-section-content" placeholder="e.g., <p>Content here</p>"></textarea>
+                </div>
+                <button type="button" class="add-student" onclick="addCustomSection()">Tambah Section</button>
+            </div>
+
+            <!-- CSS Customizations -->
+            <div class="section-form">
+                <h3>CSS Customizations</h3>
+                <div class="form-group">
+                    <label for="body-bg-color">Body Background Color</label>
+                    <input type="color" id="body-bg-color" value="#f4f4f4">
+                </div>
+                <div class="form-group">
+                    <label for="header-bg-color">Header Background Color</label>
+                    <input type="color" id="header-bg-color" value="#667eea">
+                </div>
+                <div class="form-group">
+                    <label for="font-family">Font Family</label>
+                    <input type="text" id="font-family" value="'Poppins', sans-serif">
+                </div>
+                <div class="form-group">
+                    <label for="text-color">Text Color</label>
+                    <input type="color" id="text-color" value="#333">
+                </div>
+                <div class="form-group">
+                    <label for="link-color">Link Color</label>
+                    <input type="color" id="link-color" value="#667eea">
+                </div>
+            </div>
+
+            <!-- Meta Tags -->
+            <div class="section-form">
+                <h3>Meta Tags</h3>
+                <div class="form-group">
+                    <label for="page-title">Page Title</label>
+                    <input type="text" id="page-title" value="© WEBSITE PRIVATE 8.11. Dibuat oleh Tim Web Kelas.">
+                </div>
+                <div class="form-group">
+                    <label for="meta-description">Meta Description</label>
+                    <textarea id="meta-description">Website resmi Kelas 8.11 MTSN 1 Kota Bekasi. Informasi lengkap tentang kelas, siswa, struktur organisasi, dan kegiatan.</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="favicon-url">Favicon URL</label>
+                    <input type="url" id="favicon-url" placeholder="https://example.com/favicon.ico">
+                </div>
+            </div>
+
+            <!-- Website Utama Content -->
+            <div class="section-form">
+                <h3>Konten Website Utama</h3>
+                <div class="form-group">
+                    <label for="website-utama-title">Judul Section</label>
+                    <input type="text" id="website-utama-title" value="LOGIN WEBSITE UTAMA (GOOGLE FORM PIKET, DOKUMENTASI PIKET)">
+                </div>
+                <div class="form-group">
+                    <label for="website-utama-description">Deskripsi</label>
+                    <textarea id="website-utama-description">Klik tombol di bawah untuk mengakses Website Utama yang berisi Google Form Piket dan Dokumentasi Piket.</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="website-utama-button-text">Teks Tombol</label>
+                    <input type="text" id="website-utama-button-text" value="Akses Website Utama">
+                </div>
+            </div>
+
+            <!-- Piket Content -->
+            <div class="section-form">
+                <h3>Konten Piket Pengganti</h3>
+                <div class="form-group">
+                    <label for="piket-title">Judul Section</label>
+                    <input type="text" id="piket-title" value="LOGIN PIKET PENGGANTI">
+                </div>
+                <div class="form-group">
+                    <label for="piket-description">Deskripsi</label>
+                    <textarea id="piket-description">Klik tombol di bawah untuk login ke sistem piket pengganti.</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="piket-button-text">Teks Tombol</label>
+                    <input type="text" id="piket-button-text" value="Login Piket Pengganti">
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <div class="section-form">
+                <h3>Navigation Menu</h3>
+                <div class="form-group">
+                    <label for="nav-beranda">Menu Beranda</label>
+                    <input type="text" id="nav-beranda" value="BERANDA">
+                </div>
+                <div class="form-group">
+                    <label for="nav-tentang">Menu Tentang Kami</label>
+                    <input type="text" id="nav-tentang" value="TENTANG KAMI">
+                </div>
+                <div class="form-group">
+                    <label for="nav-informasi">Menu Informasi Kelas</label>
+                    <input type="text" id="nav-informasi" value="INFORMASI KLS">
+                </div>
+                <div class="form-group">
+                    <label for="nav-siswa">Menu Daftar Siswa</label>
+                    <input type="text" id="nav-siswa" value="DAFTAR SISWA">
+                </div>
+                <div class="form-group">
+                    <label for="nav-struktur">Menu Struktur Organisasi</label>
+                    <input type="text" id="nav-struktur" value="STRUKTUR ORGANISASI KELAS">
+                </div>
+                <div class="form-group">
+                    <label for="nav-jadwal">Menu Jadwal Pelajaran</label>
+                    <input type="text" id="nav-jadwal" value="JADWAL PELAJARAN">
+                </div>
+                <div class="form-group">
+                    <label for="nav-foto">Menu Foto Kegiatan</label>
+                    <input type="text" id="nav-foto" value="FOTO KEGIATAN">
+                </div>
+                <div class="form-group">
+                    <label for="nav-website-utama">Menu Website Utama</label>
+                    <input type="text" id="nav-website-utama" value="LOGIN WEBSITE UTAMA">
+                </div>
+                <div class="form-group">
+                    <label for="nav-piket">Menu Piket Pengganti</label>
+                    <input type="text" id="nav-piket" value="LOGIN PIKET PENGGANTI">
+                </div>
+                <div class="form-group">
+                    <label for="nav-kontak">Menu Kontak</label>
+                    <input type="text" id="nav-kontak" value="INFORMASI KONTAK">
+                </div>
+                <div class="form-group">
+                    <label for="nav-cpanel">Menu CPanel</label>
+                    <input type="text" id="nav-cpanel" value="CPANEL">
+                </div>
+            </div>
+
+            <!-- Section Headings -->
+            <div class="section-form">
+                <h3>Judul Section</h3>
+                <div class="form-group">
+                    <label for="heading-tentang">Judul Section Tentang Kami</label>
+                    <input type="text" id="heading-tentang" value="Tentang Kami">
+                </div>
+                <div class="form-group">
+                    <label for="heading-informasi">Judul Section Informasi Kelas</label>
+                    <input type="text" id="heading-informasi" value="Informasi Kelas">
+                </div>
+                <div class="form-group">
+                    <label for="heading-siswa">Judul Section Daftar Siswa</label>
+                    <input type="text" id="heading-siswa" value="Daftar Siswa">
+                </div>
+                <div class="form-group">
+                    <label for="heading-struktur">Judul Section Struktur Organisasi</label>
+                    <input type="text" id="heading-struktur" value="STRUKTUR ORGANISASI KELAS">
+                </div>
+                <div class="form-group">
+                    <label for="heading-jadwal">Judul Section Jadwal Pelajaran</label>
+                    <input type="text" id="heading-jadwal" value="Jadwal Pelajaran">
+                </div>
+                <div class="form-group">
+                    <label for="heading-foto">Judul Section Foto Kegiatan</label>
+                    <input type="text" id="heading-foto" value="FOTO KEGIATAN">
+                </div>
+                <div class="form-group">
+                    <label for="heading-kontak">Judul Section Kontak</label>
+                    <input type="text" id="heading-kontak" value="Kontak Kami">
+                </div>
+            </div>
+
+
+
+            <!-- Pengaturan Musik -->
+            <div class="section-form">
+                <h3>Pengaturan Musik</h3>
+                <div class="form-group">
+                    <label for="music-search">Cari Lagu (YouTube/Spotify)</label>
+                    <input type="text" id="music-search" placeholder="Masukkan nama lagu atau artis">
+                    <button type="button" onclick="searchMusic()">Cari di YouTube</button>
+                    <button type="button" onclick="searchMusicSpotify()">Cari di Spotify</button>
+                </div>
+                <div class="form-group">
+                    <label for="music-url">URL Embed Lagu</label>
+                    <input type="url" id="music-url" placeholder="Masukkan URL embed YouTube atau Spotify">
+                </div>
+                <div class="form-group">
+                    <label for="music-preview">Preview Musik</label>
+                    <div id="music-preview"></div>
+                    <button type="button" onclick="previewMusic()">Preview</button>
+                </div>
+            </div>
+
+            <!-- Notifikasi -->
+            <div class="section-form">
+                <h3>Kirim Notifikasi ke Website</h3>
+                <div class="form-group">
+                    <label for="notification-message">Pesan Notifikasi</label>
+                    <textarea id="notification-message" placeholder="Masukkan pesan notifikasi yang akan dikirim ke website" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="notification-type">Tipe Notifikasi</label>
+                    <select id="notification-type">
+                        <option value="info">Info</option>
+                        <option value="warning">Peringatan</option>
+                        <option value="success">Berhasil</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+                <button type="button" class="save-btn" onclick="sendNotification()" style="background: #28a745;">Kirim Notifikasi</button>
+                <div id="notification-status" style="margin-top: 10px; font-weight: 600;"></div>
+            </div>
+
+            <!-- Kelola Notifikasi -->
+            <div class="section-form">
+                <h3>Kelola Notifikasi</h3>
+                <div id="notifications-list">
+                    <!-- Notifications will be loaded here -->
+                </div>
+                <button type="button" class="save-btn" onclick="loadNotifications()" style="background: #17a2b8;">Refresh Daftar Notifikasi</button>
+                <button type="button" class="save-btn" onclick="deleteSelectedNotifications()" style="background: #dc3545; margin-top: 10px; margin-right: 10px;">Hapus Notifikasi Terpilih</button>
+                <button type="button" class="save-btn" onclick="deleteAllNotifications()" style="background: #dc3545; margin-top: 10px;">Hapus Semua Notifikasi</button>
+            </div>
+
+            <!-- Lainnya -->
+            <div class="section-form">
+                <h3>Lainnya</h3>
+                <div class="form-group">
+                    <label for="footer-text">Footer Text</label>
+                    <input type="text" id="footer-text" value="&copy; WEBSITE PRIVATE 8.11. Dibuat oleh Tim Web Kelas.">
+                </div>
+                <div class="form-group">
+                    <label for="website-utama-link">Website Utama Link</label>
+                    <input type="url" id="website-utama-link" value="https://website-utama-sooty.vercel.app/">
+                </div>
+                <div class="form-group">
+                    <label for="piket-link">Login Piket Pengganti Link</label>
+                    <input type="url" id="piket-link" value="https://login-piketpengganti.vercel.app/">
+                </div>
+                <div class="form-group">
+                    <label for="preloader-text">Preloader Welcome Text</label>
+                    <input type="text" id="preloader-text" value="SELAMAT DATANG DI WEBSITE KE 2 KELAS 8.11">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label for="auto-save-toggle" style="font-weight: 600;">Auto-Save:</label>
+                <input type="checkbox" id="auto-save-toggle" onchange="toggleAutoSave()" checked>
+                <span id="last-saved-time" style="margin-left: 20px; font-size: 14px; color: #666;"></span>
+            </div>
+            <button type="button" class="save-btn" onclick="saveChanges()">Simpan Perubahan</button>
+            <button type="button" class="save-btn" onclick="undo()" style="background: #ffc107; margin-left: 10px;">Undo</button>
+            <button type="button" class="save-btn" onclick="redo()" style="background: #17a2b8; margin-left: 10px;">Redo</button>
+            <button type="button" class="save-btn" onclick="preview()" style="background: #28a745; margin-left: 10px;">Preview Website</button>
+            <button type="button" class="save-btn" onclick="exportConfig()" style="background: #6f42c1; margin-left: 10px;">Export Config</button>
+            <input type="file" id="import-config" accept=".json" style="display: none;" onchange="importConfig(this)">
+            <button type="button" class="save-btn" onclick="document.getElementById('import-config').click()" style="background: #fd7e14; margin-left: 10px;">Import Config</button>
+        </form>
+    </div>
+
+    <script src="cpanel.js"></script>
+</body>
+</html>
